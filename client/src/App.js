@@ -5,44 +5,50 @@ import Axios from 'axios'
 import UserCard from './components/UserCard';
 import FollowerCard from './components/FollowerCard'
 
+/**
+ * The logic of the app goes like this: default user is my github. The form
+ * has user state that it updates with onchange. On submit, it calls a handleOnSubmit
+ * in this main component. This takes the form component's state.user, and sets this
+ * componnet's state.user to that value. This triggers componentDidUpdate, which calls
+ * the same two functions that componentDidUpdate called, except with now a different state.user
+ * value.
+ */
 class App extends React.Component {
   constructor() {
     super()
-    this.state = { user: "", myData: "", followers: []  }
+    this.state = { user: "embiggenerd", data: "", followers: [] }
   }
 
-  // We are using an async here with destructuring. Short but could be confusing.
+  fetchUser = async () => {
+    try {
+      const { data } = await Axios.get(`https://api.github.com/users/${this.state.user}`)
+      this.setState({ myData: data })
+
+    } catch (e) { console.log(e) }
+  }
+
+  fetchFollowers = async () => {
+    try {
+      const { data } = await Axios.get(`https://api.github.com/users/${this.state.user}/followers`)
+      this.setState({ followers: data }, () => { console.log(this.state.followers) })
+
+    } catch (e) { console.log(e) }
+  }
+
   componentDidMount() {
-    const myUserGet = async () => {
-      try {
-        const { data } = await Axios.get('https://api.github.com/users/embiggenerd')
-        this.setState({ myData: data })
-      } catch (e) { console.log(e) }
-    }
-    const myFollowers = async () => {
-      try {
-        const { data } = await Axios.get('https://api.github.com/users/embiggenerd/followers')
-        this.setState({ followers: data}, ()=>{console.log(this.state.followers)})
-      }catch(e){console.log(e)}
-    }
-    myUserGet()
-    myFollowers()
+    this.fetchUser()
+    this.fetchFollowers()
   }
 
-  handleOnChange = event => {
-    this.setState({ user: event.target.value })
+  componentDidUpdate(_, prevState) {
+    if (this.state.user !== prevState.user) {
+      this.fetchUser()
+      this.fetchFollowers()
+    }
   }
 
-  handleOnSubmit = event => {
-    console.log('handleOnSbumit invoked')
-    event.preventDefault()
-    const submitUserGet = async () => {
-      try {
-        const userData = await Axios.get(`https://api.github.com/users/${this.state.user}`)
-        console.log('userData', userData)
-      } catch (e) { console.log(e) }
-    }
-    submitUserGet()
+  handleOnSubmit = user => {
+    this.setState({ user })
   }
 
   render() {
@@ -55,7 +61,7 @@ class App extends React.Component {
         </header>
         <div className="followers">
           {this.state.followers.map(f => {
-            return <FollowerCard {...f}/>
+            return <FollowerCard key={f.id} {...f} />
           })}
         </div>
       </div>
