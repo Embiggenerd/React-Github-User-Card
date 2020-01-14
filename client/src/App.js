@@ -7,7 +7,7 @@ import FollowerCard from './components/FollowerCard'
 
 /**
  * The logic of the app goes like this: default user is my github. The form
- * has user state that it updates with onchange. On submit, it calls a handleOnSubmit
+ * has user state that it updates with onchange. On submit, it calls handleOnSubmit()
  * in this main component. This takes the form component's state.user, and sets this
  * componnet's state.user to that value. This triggers componentDidUpdate, which calls
  * the same two functions that componentDidUpdate called, except with now a different state.user
