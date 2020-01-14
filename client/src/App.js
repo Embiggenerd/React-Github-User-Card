@@ -6,11 +6,25 @@ import Axios from 'axios'
 class App extends React.Component {
   constructor() {
     super()
-    this.state = { user: "" }
+    this.state = { user: "", myData: "" }
+  }
+
+  componentDidMount() {
+    const myUserGet = async () => {
+      try {
+
+        const myDataRes = await Axios.get('https://api.github.com/users/embiggenerd')
+        console.log('myDataRes', myDataRes.data.login)
+        const { data } = myDataRes
+        this.setState({ myData: data })
+
+      } catch (e) { console.log(e) }
+    }
+    myUserGet()
   }
 
   handleOnChange = event => {
-    this.setState({ user: event.target.value }, () => console.log(this.state.user))
+    this.setState({ user: event.target.value })
   }
 
   handleOnSubmit = event => {
